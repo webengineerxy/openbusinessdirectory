@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentazione: OpenStreetMap - intelligente, umana, condivisa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Sicilian Sunrise -->
+    <!-- Application Structure Plan: La presentazione è un carosello orizzontale. La slide dei ringraziamenti è stata modificata in stile "FOSS Credits", rimuovendo nomi personali e ringraziando i gruppi, gli "Friends" delle community e la "Family". -->
+    <!-- Visualization & Content Choices: Le visualizzazioni sono confermate. Il testo della slide dei crediti è stato aggiornato per riflettere un tono più FOSS e meno personale, come richiesto. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    
+    <style>
+        html, body { margin: 0; padding: 0; overflow: hidden; height: 100%; width: 100%; background-color: #0c0a09; }
+        body { font-family: 'Manrope', sans-serif; color: #f2f2f2; }
+        #presentation-wrapper { width: 100vw; height: 100vh; }
+        #presentation-container { display: flex; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slide { width: 100vw; height: 100vh; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1rem; box-sizing: border-box; }
+        .slide-content { max-width: 1200px; width: 100%; }
+        .gradient-text { background: linear-gradient(90deg, #fb923c, #f97316, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .fade-in-content { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out 0.4s, transform 0.6s ease-out 0.4s; }
+        .is-visible .fade-in-content { opacity: 1; transform: translateY(0); }
+        .card-hover { transition: transform 0.3s ease, box-shadow: 0.3s ease; }
+        .card-hover:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(249, 115, 22, 0.2), 0 10px 10px -5px rgba(249, 115, 22, 0.1); }
+        .phone-mockup { animation: float 4s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        
+        .palermo-map-container { position: relative; width: 100%; max-width: 500px; height: 450px; margin: 0 auto; }
+        .palermo-map-shape { width: 100%; height: 100%; background: linear-gradient(145deg, #1c1917, #292524); clip-path: polygon(25% 0%, 75% 0%, 100% 20%, 95% 60%, 80% 98%, 20% 100%, 0% 70%, 5% 25%); position: relative; }
+        .hotspot { position: absolute; width: 20px; height: 20px; background-color: #9ca3af; border-radius: 50%; transition: all 0.4s ease; transform: scale(1); }
+        .hotspot::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background-color: #9ca3af; animation: pulse-grey 2.5s infinite; }
+        .hotspot.active { background-color: #ea580c; transform: scale(1.5); }
+        .hotspot.active::after { background-color: #ea580c; animation: pulse 2s infinite; }
+        #hotspot-1 { top: 40%; left: 55%; } #hotspot-2 { top: 65%; left: 30%; } #hotspot-3 { top: 20%; left: 30%; } #hotspot-4 { top: 15%; left: 70%; } #hotspot-5 { top: 80%; left: 60%; }
+
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.7); } 70% { transform: scale(1.5); box-shadow: 0 0 0 10px rgba(234, 88, 12, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0); } }
+        @keyframes pulse-grey { 0% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.3); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.7; } }
+        #story-display-wrapper { display: flex; flex-direction: column; justify-content: space-between; height: 450px; }
+        #story-display { position: relative; min-height: 250px;}
+        #story-display > div { position: absolute; top:0; left: 0; right: 0; opacity: 0; transition: opacity 0.5s ease-in-out; visibility: hidden; }
+        #story-display > div.active { opacity: 1; visibility: visible; }
+        .action-link { font-weight: bold; color: #f97316; text-decoration: none; transition: color .2s; }
+        .action-link:hover { color: #fb923c; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="presentation-wrapper">
+        <div id="presentation-container">
+            <!-- Slide 1: Titolo -->
+            <section class="slide bg-stone-900 text-center">
+                <div class="slide-content"><div class="fade-in-content">
+                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight"><span class="block">OpenStreetMap:</span><span class="gradient-text block mt-2">intelligente, umana, condivisa</span></h1>
+                    <p class="mt-8 text-lg md:text-xl text-stone-400">di Salvatore Saitta</p><p class="text-stone-500">Linux Day Palermo - 25 Ottobre 2025</p>
+                </div></div>
+            </section>
+            
+            <!-- Slide 2: Manifesto -->
+            <section class="slide">
+                <div class="slide-content"><div class="fade-in-content text-center">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6">Perché Siamo Qui?</h2>
+                    <p class="text-xl text-stone-300 max-w-4xl mx-auto">Non per parlare di una mappa. Ma per parlare di <span class="gradient-text font-bold">libertà</span> e di <span class="gradient-text font-bold">potere</span>.</p>
+                    <p class="mt-4 text-xl text-stone-300 max-w-4xl mx-auto">Ho scelto di parlarvi di OpenStreetMap perché è la vera alternativa FOSS a Google Maps e Waze, ma è molto di più: è una mappa creata <span class="font-bold">tra pari (peering)</span>, un bene comune che ci riprendiamo.</p>
+                    <p class="mt-8 text-2xl font-bold">Oggi vi darò gli strumenti per non essere più solo spettatori, ma per <span class="text-orange-400">diventare protagonisti.</span></p>
+                </div></div>
+            </section>
+
+            <!-- Slide 3: Gancio -->
+            <section class="slide">
+                <div class="slide-content"><div class="fade-in-content grid md:grid-cols-2 gap-12 items-center">
+                    <div class="md:pr-12">
+                        <h2 class="text-4xl md:text-5xl font-bold leading-tight">Mappare il Mondo? <br>Un <span class="gradient-text">"Gioco"</span> Serio.</h2>
+                        <p class="mt-6 text-xl text-stone-300">Questa è <span class="font-bold text-orange-400">StreetComplete</span>. Un'app FOSS che trasforma la mappatura in un gioco. Ti fa domande semplici sulla tua via, e ogni tua risposta migliora istantaneamente la mappa del mondo per tutti.</p>
+                        <p class="mt-8 text-xl font-bold text-stone-400">Pensa a quante cose sai della tua via che una mappa commerciale non mostrerà mai. Ora puoi aggiungerle.</p>
+                    </div>
+                    <div class="flex justify-center phone-mockup">
+                        <div class="w-64 h-[512px] bg-stone-800 rounded-[40px] border-4 border-stone-700 p-4 shadow-2xl shadow-orange-500/10"><div class="w-full h-full bg-stone-900 rounded-[24px] flex flex-col items-center justify-center p-4">
+                            <div class="text-orange-400 text-5xl mb-4">📍</div><p class="text-white font-bold text-center">StreetComplete</p>
+                            <p class="text-stone-400 text-sm text-center mt-2">Questa panchina ha uno schienale?</p>
+                            <div class="mt-6 w-full flex justify-around"><button class="bg-green-600/50 text-white font-bold py-2 px-6 rounded-lg">Sì</button><button class="bg-red-600/50 text-white font-bold py-2 px-6 rounded-lg">No</button></div>
+                        </div></div>
+                    </div>
+                </div></div>
+            </section>
+            
+            <!-- Slide 4: Magic Earth -->
+            <section class="slide">
+                <div class="slide-content"><div class="fade-in-content grid md:grid-cols-2 gap-12 items-center">
+                    <div class="md:pr-12">
+                        <h2 class="text-4xl md:text-5xl font-bold leading-tight">I tuoi dati <br>in <span class="gradient-text">azione</span>, per te.</h2>
+                        <p class="mt-6 text-xl text-stone-300">Applicazioni FOSS come <span class="font-bold text-orange-400">Magic Earth</span> usano i dati di OpenStreetMap per darti un navigatore gratuito, offline, che rispetta la tua privacy e ricco di dettagli che solo la comunità può fornire.</p>
+                        <p class="mt-8 text-xl font-bold text-stone-400">La prossima volta che usi un navigatore, chiediti: chi possiede i tuoi dati? Con OSM, la risposta sei tu.</p>
+                    </div>
+                    <div class="flex justify-center phone-mockup">
+                        <div class="w-64 h-[512px] bg-stone-800 rounded-[40px] border-4 border-stone-700 p-4 shadow-2xl shadow-orange-500/10"><div class="w-full h-full bg-stone-900 rounded-[24px] flex flex-col items-center justify-center p-4">
+                            <div class="text-orange-400 text-5xl mb-4">🧭</div><p class="text-white font-bold text-center text-xl">Magic Earth</p><p class="text-stone-400 text-sm text-center mt-2">Navigazione che rispetta la privacy</p>
+                            <div class="mt-6 w-full h-32 bg-stone-700 rounded-lg p-2"><div class="w-full h-full bg-cover rounded" style="background-image: url('https://placehold.co/200x150/1c1917/ea580c?text=Mappa')"></div></div>
+                        </div></div>
+                    </div>
+                </div></div>
+            </section>
+
+            <!-- Slide 5: La Filosofia -->
+            <section class="slide">
+                <div class="slide-content"><div class="fade-in-content text-center">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-12">Siamo Noi la Mappa</h2>
+                    <div class="grid md:grid-cols-3 gap-8 text-left">
+                        <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover"><div class="text-4xl">🌍</div><h3 class="mt-4 text-2xl font-bold">Liberiamo i Dati</h3><p class="mt-2 text-stone-400">Con la licenza ODbL, i dati non sono di un'azienda, sono di tutti. Chiunque può usarli, migliorarli e costruirci sopra. Senza chiedere permesso.</p></div>
+                        <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover"><div class="text-4xl">🤝</div><h3 class="mt-4 text-2xl font-bold">Creazione tra Pari</h3><p class="mt-2 text-stone-400">Non ci sono "utenti" e "sviluppatori". Siamo tutti una rete di persone che collabora per creare un bene comune, come faceva il primo Internet.</p></div>
+                        <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover"><div class="text-4xl">🗺️</div><h3 class="mt-4 text-2xl font-bold">Conoscenza Locale</h3><p class="mt-2 text-stone-400">Un'auto di Google non saprà mai qual è il panificio migliore o se un marciapiede è accessibile. Noi sì. E possiamo aggiungerlo.</p></div>
+                    </div>
+                    <p class="mt-12 text-2xl font-bold"><span class="gradient-text">Non sei un utente. Sei un proprietario. Sei un creatore.</span></p>
+                </div></div>
+            </section>
+
+            <!-- Slide 6: Impatto Umanitario -->
+            <section class="slide">
+                <div class="slide-content"><div class="fade-in-content">
+                    <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Il Tuo "Tocco" Salva le Vite</h2>
+                    <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold">Caso Studio: Uragano Otis, Messico</h3>
+                            <p class="mt-4 text-stone-400">Quando la devastazione ha colpito Acapulco, migliaia di volontari si sono attivati. Tramite lo strumento <span class="font-bold text-orange-400">Tasking Manager</span> di HOT, hanno mappato strade ed edifici distrutti, creando in poche ore una mappa per i soccorritori.</p>
+                            <p class="mt-4"><a href="https://tasks.hotosm.org/" target="_blank" rel="noopener noreferrer" class="action-link">Puoi diventare un volontario anche tu, ora &rarr;</a></p>
+                        </div>
+                        <div class="chart-container h-64 md:h-80"><canvas id="otisChart"></canvas></div>
+                    </div>
+                    <p class="mt-8 text-2xl font-bold text-center">Mappare un edificio da casa può salvare una vita dall'altra parte del mondo. <span class="gradient-text">Questo è potere.</span></p>
+                </div></div>
+            </section>
+            
+            <!-- Slide 7: AI della Comunità -->
+            <section class="slide">
+                <div class="slide-content"><div class="fade-in-content">
+                    <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">AI <span class="gradient-text">della</span> Comunità, <span class="gradient-text">per la</span> Comunità</h2>
+                    <div class="grid md:grid-cols-2 gap-12 items-start">
+                         <div class="space-y-4">
+                            <h3 class="text-2xl font-bold">Indipendenza e Controllo</h3>
+                            <p class="text-stone-300 text-lg">La vera forza del FOSS è la capacità di costruire i propri strumenti. Invece di dipendere da dati AI di grandi aziende, la comunità può addestrare i propri modelli di intelligenza artificiale.</p>
+                            <p class="text-stone-300 text-lg">L'AI è un aiuto, mai una "scatola nera". I suggerimenti vengono sempre verificati e corretti dalla conoscenza locale dei volontari.</p>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800"><h4 class="font-bold text-xl text-orange-400">fAIr (di HOT)</h4><p class="mt-2 text-stone-400">Un modello AI open source, specifico per il settore umanitario, per accelerare la mappatura. <a href="https://www.hotosm.org/tech-and-innovation/fair-project/" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Scopri di più</a></p></div>
+                            <div class="bg-stone-900 p-6 rounded-2xl border border-stone-800"><h4 class="font-bold text-xl text-orange-400">Modelli "Self-Trained"</h4><p class="mt-2 text-stone-400">Con software FOSS come Robosat e dati aperti (es. Copernicus), chiunque può addestrare modelli di AI. <a href="https://github.com/mapbox/robosat" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Vedi il codice</a></p></div>
+                        </div>
+                    </div>
+                     <p class="text-center mt-12 text-2xl font-bold">Invece di subire l'AI, <span class="gradient-text">la usiamo alle nostre condizioni.</span></p>
+                </div></div>
+            </section>
+
+            <!-- Slide 8: Polemica / Confronto -->
+            <section class="slide">
+                <div class="slide-content"><div class="fade-in-content text-center">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-12">Due Filosofie a Confronto: <span class="gradient-text">Prodotto vs Processo</span></h2>
+                    <div class="grid md:grid-cols-2 gap-8 text-left">
+                        <div class="bg-stone-900 p-8 rounded-2xl border border-stone-700"><h3 class="text-2xl font-bold text-blue-400">Overture (Big Tech)</h3><p class="mt-4 text-stone-300">Un consorzio di aziende rilascia un "prodotto": un dataset di base, generato dall'alto (top-down) e guidato da esigenze commerciali. Il risultato sono <span class="font-bold">Dati Aperti</span>.</p></div>
+                        <div class="bg-orange-900/20 p-8 rounded-2xl border border-orange-700 ring-2 ring-orange-500/50"><h3 class="text-2xl font-bold text-orange-400">OpenStreetMap (Comunità)</h3><p class="mt-4 text-stone-300">Una comunità di persone crea un "processo" vivo: un database ricco di dettagli, costruito dal basso (bottom-up) e guidato dalla passione. Il risultato è una <span class="font-bold">Mappa Aperta</span>.</p></div>
+                    </div>
+                    <p class="mt-10 text-xl max-w-4xl mx-auto text-stone-300">Overture fornisce le fondamenta, OSM costruisce la cattedrale. <span class="font-bold">La domanda è: vogliamo solo usare i dati o vogliamo possedere la mappa?</span></p>
+                </div></div>
+            </section>
+            
+            <!-- Slide 9: Palermo Mappata -->
+            <section class="slide" id="palermo-slide">
+                <div class="slide-content grid md:grid-cols-2 gap-12 items-start pt-10">
+                    <div class="fade-in-content"><div id="story-display-wrapper"><div id="story-display">
+                        <div class="active" data-story-content="0">
+                            <h2 class="text-4xl md:text-5xl font-bold">Palermo non è una mappa. <br>È il suo <span class="gradient-text">cuore che pulsa.</span></h2>
+                            <p class="mt-4 text-xl text-stone-300">Queste non sono solo mappe. Sono domande sulla nostra città a cui la comunità ha risposto con uno strumento FOSS chiamato <span class="font-bold">uMap</span>.</p>
+                            <p class="mt-8 text-stone-400 font-semibold animate-pulse">Premi → per scoprire le storie.</p>
+                        </div>
+                        <div data-story-content="1"><div class="text-5xl mb-4">🚨</div><h3 class="text-3xl font-bold text-orange-400">Come rendiamo le strade più sicure?</h3><p class="mt-4 text-lg text-stone-300">Con la Mappa dei Sinistri Stradali, che usa dati aperti per aiutarci a pianificare una città più a misura d'uomo.</p><p class="mt-4"><a href="https://umap.openstreetmap.fr/it/map/sinistri-stradali-palermo-2022_851888" target="_blank" rel="noopener noreferrer" class="action-link">Esplora questa mappa &rarr;</a></p></div>
+                        <div data-story-content="2"><div class="text-5xl mb-4">🕊️</div><h3 class="text-3xl font-bold text-orange-400">Come onoriamo la nostra storia?</h3><p class="mt-4 text-lg text-stone-300">Con la Mappa delle Vittime di Mafia, che trasforma i luoghi in monumenti della memoria e del nostro impegno per la legalità.</p><p class="mt-4"><a href="http://umap.openstreetmap.fr/it/map/mappa-delle-vittime-cadute-per-mafia-a-palermo_158716" target="_blank" rel="noopener noreferrer" class="action-link">Esplora questa mappa &rarr;</a></p></div>
+                        <div data-story-content="3"><div class="text-5xl mb-4">♿</div><h3 class="text-3xl font-bold text-orange-400">Come apriamo la città a tutti?</h3><p class="mt-4 text-lg text-stone-300">Con la mappa di Palermo Accessibile, che rimuove le barriere una ad una fornendo informazioni vitali per una città davvero inclusiva.</p><p class="mt-4"><a href="https://umap.openstreetmap.fr/it/map/palermo-accessibile_112388" target="_blank" rel="noopener noreferrer" class="action-link">Esplora questa mappa &rarr;</a></p></div>
+                        <div data-story-content="4"><div class="text-5xl mb-4">🏛️</div><h3 class="text-3xl font-bold text-orange-400">Come viviamo la nostra cultura?</h3><p class="mt-4 text-lg text-stone-300">Con la mappa de Le Vie dei Tesori, un invito a riscoprire la bellezza nascosta nei palazzi, nelle chiese e nelle piazze della nostra città.</p><p class="mt-4"><a href="https://umap.openstreetmap.fr/it/map/rielaborazione-le-vie-dei-tesori-palermo-2022_826767" target="_blank" rel="noopener noreferrer" class="action-link">Esplora questa mappa &rarr;</a></p></div>
+                        <div data-story-content="5"><div class="text-5xl mb-4">🏘️</div><h3 class="text-3xl font-bold text-orange-400">Come diamo voce ai quartieri?</h3><p class="mt-4 text-lg text-stone-300">Con la Mappa di Comunità, che connette persone, bisogni e risorse, rafforzando il tessuto sociale dal basso.</p<p class="mt-4"><a href="https://www.cesvop.org/sperone-partecipa-mappa-comunita-viii-circoscrizione/" target="_blank" rel="noopener noreferrer" class="action-link">Scopri il progetto &rarr;</a></p></div>
+                    </div></div></div>
+                    <div class="fade-in-content">
+                        <div class="palermo-map-container"><div class="palermo-map-shape">
+                            <span class="hotspot" id="hotspot-1" data-story="1"></span><span class="hotspot" id="hotspot-2" data-story="2"></span><span class="hotspot" id="hotspot-3" data-story="3"></span><span class="hotspot" id="hotspot-4" data-story="4"></span><span class="hotspot" id="hotspot-5" data-story="5"></span>
+                        </div></div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="slide text-center">
+                <div class="slide-content">
+                    <div class="fade-in-content">
+                        <h2 class="text-4xl md:text-5xl font-bold">Abbiamo mappato strade, cultura, memoria...<br>Ma manca un pezzo del <span class="gradient-text">mosaico economico</span>.</h2>
+                        <p class="mt-6 text-xl max-w-3xl mx-auto text-stone-300">Le nostre attività commerciali, i nostri artigiani, i nostri ristoranti sono ancora "ostaggio" di piattaforme chiuse che controllano i loro dati e la loro visibilità.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="slide text-center">
+                <div class="slide-content">
+                    <div class="fade-in-content">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-8"><span class="gradient-text">Grazie & Credits</span></h2>
+                        
+                        <p class="text-2xl font-bold text-stone-100">Un ringraziamento speciale a <span class="text-orange-400">VOI</span>.</p>
+                        <p class="text-lg text-stone-300 mb-8">La vostra presenza e curiosità sono il primo passo per costruire il futuro di questo progetto.</p>
+
+                        <div class="border-t border-stone-700 pt-8">
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 text-left max-w-4xl mx-auto">
+                                <div>
+                                    <h3 class="text-xl font-bold text-stone-400 uppercase tracking-wider">Organizzatori</h3>
+                                    <ul class="mt-4 space-y-2 text-lg">
+                                        <li class="font-bold">Free Circle Palermo <span class="text-sm text-stone-400 font-normal">(per l'invito)</span></li>
+                                        <li class="font-bold">Città di Palermo</li>
+                                        <li class="font-bold">Sponsor del Linux Day</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-stone-400 uppercase tracking-wider">Community</h3>
+                                    <ul class="mt-4 space-y-2 text-lg">
+                                        <li class="font-bold">Wikimediani in Sicilia</li>
+                                        <li class="font-bold">OpenStreetMap Italia</li>
+                                        <li class="font-bold">Tutti per i feedback e le opinioni.</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-stone-400 uppercase tracking-wider">Special Thanks</h3>
+                                    <ul class="mt-4 space-y-2 text-lg">
+                                        <li class="font-bold">Friends <span class="text-sm text-stone-400 font-normal">(incluso <span class="font-semibold text-orange-400">maginfridus</span> e altri compagni di 'mappe alternative')</span></li>
+                                        <li class="font-bold">Family ❤️ <span class="text-sm text-stone-400 font-normal">(per l'energia e l'eterna presenza)</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </section>
+
+            <!-- INIZIO APPENDICE -->
+
+            <section class="slide text-center">
+                <div class="slide-content">
+                    <div class="fade-in-content">
+                        <h2 class="text-4xl md:text-5xl font-bold">Siete ancora qui? Bene.</h2>
+                        <p class="mt-6 text-2xl max-w-3xl mx-auto text-stone-300">Allora volete davvero vedere quanto è profonda la <span class="gradient-text font-bold">tana del Bianconiglio</span>.</p>
+                        <p class="mt-8 text-xl font-bold text-stone-400 animate-pulse">Premi →</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Il DNA Condiviso: <span class="gradient-text">Perché OSM è il "Linux" delle Mappe</span></h2>
+                        <div class="grid md:grid-cols-2 gap-8 text-left">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-blue-400/50">
+                                <h3 class="text-2xl font-bold text-blue-400">Linux (1991)</h3>
+                                <ul class="mt-4 space-y-2 list-disc list-inside text-stone-300">
+                                    <li>Un **Kernel** aperto per sistemi operativi.</li>
+                                    <li>Creato per "grattare un prurito personale" (scratch an itch).</li>
+                                    <li>Base per un ecosistema FOSS (Android, server web, etc).</li>
+                                </ul>
+                            </div>
+                            <div class="bg-orange-900/20 p-8 rounded-2xl border border-orange-700">
+                                <h3 class="text-2xl font-bold text-orange-400">OpenStreetMap (2004)</h3>
+                                <ul class="mt-4 space-y-2 list-disc list-inside text-stone-300">
+                                    <li>Un **Database** aperto per dati geografici.</li>
+                                    <li>Creato per frustrazione contro i dati proprietari (Ordnance Survey).</li>
+                                    <li>Base per un ecosistema FOSS (Magic Earth, OsmAnd, uMap...).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="mt-10 text-xl max-w-4xl mx-auto text-stone-300">Entrambi sono l'infrastruttura fondamentale, libera e collaborativa su cui altri possono costruire valore. <span class="font-bold">Non sono solo software, sono beni comuni.</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">"La Legge di Linus" <span class="gradient-text">applicata alle Mappe</span></h2>
+                        <blockquote class="text-2xl italic text-stone-300 max-w-3xl mx-auto">"Dato un numero sufficiente di occhi, tutti i bug vengono a galla."</blockquote>
+                        <p class="text-right text-stone-400 max-w-3xl mx-auto mt-2">- Eric S. Raymond, "La cattedrale e il bazaar"</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-8 text-left mt-10">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-700">
+                                <h3 class="text-2xl font-bold text-blue-400">Nel Kernel Linux</h3>
+                                <p class="mt-2 text-stone-400">Migliaia di sviluppatori che leggono il codice trovano e correggono bug, falle di sicurezza e inefficienze molto più velocemente di qualsiasi team chiuso.</p>
+                            </div>
+                            <div class="bg-orange-900/20 p-8 rounded-2xl border border-orange-700">
+                                <h3 class="text-2xl font-bold text-orange-400">In OpenStreetMap</h3>
+                                <p class="mt-2 text-stone-400">Milioni di "mappatori" che vivono il territorio (gli "occhi") trovano e correggono errori, strade chiuse, sensi unici cambiati, o atti di vandalismo, spesso in pochi minuti.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Lo Stack Tecnico: <span class="gradient-text">Costruito SU Linux e FOSS</span></h2>
+                        <p class="text-xl text-stone-300 max-w-4xl mx-auto mb-10">Vi siete mai chiesti *come* funziona OSM? L'intera infrastruttura globale gira su software libero, per la maggior parte su server Linux.</p>
+                        
+                        <div class="font-mono text-sm text-left max-w-2xl mx-auto bg-stone-900 p-6 rounded-lg border border-stone-700">
+                            <p><span class="text-green-400">[Client FOSS: JOSM, StreetComplete]</span></p>
+                            <p class="ml-4">↓ (API call)</p>
+                            <p><span class="text-blue-400">[Server Web: Apache/Nginx su Linux]</span></p>
+                            <p class="ml-4">↓ (Applicazione Rails)</p>
+                            <p><span class="text-orange-400">[Database: PostgreSQL su Linux]</span></p>
+                            <p class="ml-4">↓ (Estensione Geografica)</p>
+                            <p><span class="text-orange-400">[Database GIS: PostGIS]</span></p>
+                            <p class="ml-4">↓ (Renderizzazione Mappa)</p>
+                            <p><span class="text-blue-400">[Tile Server: Mapnik su Linux]</span></p>
+                            <p class="ml-4">↓ (Immagini .png)</p>
+                            <p><span class="text-green-400">[Client FOSS: Magic Earth, Leaflet]</span></p>
+                        </div>
+                        <p class="mt-8 text-xl max-w-4xl mx-auto text-stone-300">È FOSS, dall'inizio alla fine.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Gli Strumenti: <span class="gradient-text">Costruito CON Linux e FOSS</span></h2>
+                        <p class="text-xl text-stone-300 max-w-4xl mx-auto mb-10">L'intero ecosistema di creazione e analisi dei dati OSM è dominato da strumenti open source che girano nativamente su Linux.</p>
+                        <div class="grid md:grid-cols-2 gap-8 text-left">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover">
+                                <h3 class="text-2xl font-bold text-orange-400">JOSM</h3>
+                                <p class="mt-2 text-stone-400">Il "Vim" o "Emacs" dei mappatori. Un editor desktop scritto in Java, incredibilmente potente, estensibile con plugin. È lo strumento preferito dai contributori più esperti.</p>
+                                <p class="mt-4"><a href="https://josm.openstreetmap.de/" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Scopri JOSM &rarr;</a></p>
+                            </div>
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover">
+                                <h3 class="text-2xl font-bold text-orange-400">QGIS</h3>
+                                <p class="mt-2 text-stone-400">Il software FOSS di livello professionale per l'analisi GIS. Si integra nativamente con OSM, permettendo di trasformare i dati grezzi in analisi complesse (come quelle che avete visto per Palermo).</p>
+                                <p class="mt-4"><a href="https://qgis.org/it/site/" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Scopri QGIS &rarr;</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Il Dato: <span class="gradient-text">Il "Geo-Kernel" per le App FOSS</span></h2>
+                        <p class="text-xl text-stone-300 max-w-4xl mx-auto mb-10">Linux è il kernel che permette a un ecosistema di software libero di esistere. <br>OpenStreetMap è il **dato-kernel** che permette a un ecosistema di **applicazioni geografiche libere** di esistere.</p>
+                        <div class="grid md:grid-cols-2 gap-8 text-left">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-700">
+                                <h3 class="text-2xl font-bold text-blue-400">Senza Linux...</h3>
+                                <p class="mt-4 text-stone-300">...ogni progetto FOSS dovrebbe reinventare da zero un sistema operativo, o dipendere da piattaforme proprietarie. Il FOSS non esisterebbe come lo conosciamo.</p>
+                            </div>
+                            <div class="bg-orange-900/20 p-8 rounded-2xl border border-orange-700">
+                                <h3 class="text-2xl font-bold text-orange-400">Senza OSM...</h3>
+                                <p class="mt-4 text-stone-300">...ogni app di navigazione FOSS (come Magic Earth, OsmAnd) dovrebbe pagare milioni in licenze a Google, TomTom o HERE, o non esisterebbe affatto. </p>
+                            </div>
+                        </div>
+                         <p class="mt-10 text-xl max-w-4xl mx-auto text-stone-300"><span class="font-bold">OSM è la condizione necessaria per la libertà nel mondo del software geografico.</span></p>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">La Missione Condivisa: <span class="gradient-text">Sovranità Digitale</span></h2>
+                        <p class="text-xl text-stone-300 max-w-4xl mx-auto">Perché Richard Stallman ha creato la FSF? <br>Perché Linus Torvalds ha rilasciato Linux? <br>Perché Steve Coast ha creato OpenStreetMap?</p>
+                        <p class="mt-8 text-2xl text-stone-100 max-w-4xl mx-auto">Per un'unica, fondamentale ragione: il <span class="font-bold">CONTROLLO</span>.</p>
+                        <p class="mt-4 text-2xl text-stone-100 max-w-4xl mx-auto">La libertà di non dipendere da un'azienda che può cambiare le regole, aumentare i prezzi, o decidere che la tua via non è abbastanza importante da essere mappata.</p>
+                        <p class="mt-8 text-2xl font-bold">Linux ci ha dato il controllo sul software. <br><span class="gradient-text">OpenStreetMap ci dà il controllo sul mondo fisico.</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Oltre la Mappa: <span class="gradient-text">L'Universo Creativo di OSM</span></h2>
+                        <div class="grid md:grid-cols-2 gap-8 text-left">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover">
+                                <h3 class="text-2xl font-bold text-orange-400">Arte Geografica</h3>
+                                <p class="mt-2 text-stone-400">Progetti come <span class="font-bold">PrettyMaps</span> usano i dati OSM (strade, parchi, acqua) per generare splendide mappe artistiche e minimaliste della tua città. L'infrastruttura diventa design.</p>
+                                <img src="https://placehold.co/400x200/1c1917/ea580c?text=Mappa+Artistica" alt="Mappa artistica" class="mt-4 rounded-lg w-full object-cover h-40">
+                                <p class="mt-4"><a href="https://prettymaps.studioludens.com/" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Vedi il progetto &rarr;</a></p>
+                            </div>
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover">
+                                <h3 class="text-2xl font-bold text-orange-400">Gaming e Simulazione</h3>
+                                <p class="mt-2 text-stone-400">Perché creare un mondo virtuale da zero? I simulatori di volo (come X-Plane) e i giochi AR FOSS usano i dati OSM per ricostruire il mondo reale, strade ed edifici inclusi.</p>
+                                <img src="https://placehold.co/400x200/1c1917/ea580c?text=Gioco+AR+su+Mappa" alt="Gioco AR" class="mt-4 rounded-lg w-full object-cover h-40">
+                                <p class="mt-4"><a href="https://wiki.openstreetmap.org/wiki/Games" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Vedi i giochi basati su OSM &rarr;</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Oltre la Mappa: <span class="gradient-text">Impatto Scientifico e Sociale</span></h2>
+                        <div class="grid md:grid-cols-2 gap-8 text-left">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover">
+                                <h3 class="text-2xl font-bold text-orange-400">Scienza e Ambiente</h3>
+                                <p class="mt-2 text-stone-400">Progetti come <span class="font-bold">OpenInfraMap</span> mappano l'intera rete elettrica mondiale. Altri team usano i dati per tracciare la deforestazione, il potenziale solare dei tetti o l'inquinamento acustico.</p>
+                                <p class="mt-4"><a href="https://openinframap.org/" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Esplora la rete elettrica &rarr;</a></p>
+                            </div>
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover">
+                                <h3 class="text-2xl font-bold text-orange-400">Accessibilità e Inclusione</h3>
+                                <p class="mt-2 text-stone-400"><span class="font-bold">Wheelmap.org</span> è una mappa globale per l'accessibilità in sedia a rotelle. Usa un tag OSM semplicissimo (`wheelchair=yes/no/limited`) per dare un'informazione vitale a milioni di persone.</p>
+                                <p class="mt-4"><a href="https://wheelmap.org/" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Visita Wheelmap &rarr;</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Oltre la Mappa: <span class="gradient-text">Il Tempo e lo Spazio</span></h2>
+                        <div class="grid md:grid-cols-2 gap-8 text-left">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover">
+                                <h3 class="text-2xl font-bold text-orange-400">Mappare la Storia</h3>
+                                <p class="mt-2 text-stone-400"><span class="font-bold">OpenHistoricalMap</span> usa la stessa tecnologia di OSM per mappare il passato. Come era Palermo nel 1800? Quali erano le mura della città? Possiamo creare un database temporale della geografia umana.</p>
+                                <p class="mt-4"><a href="https://openhistoricalmap.org/" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Viaggia nel tempo &rarr;</a></p>
+                            </div>
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-800 card-hover">
+                                <h3 class="text-2xl font-bold text-orange-400">Gli Strumenti della Comunità</h3>
+                                <p class="mt-2 text-stone-400">L'intero ecosistema è FOSS. <span class="font-bold">JOSM</span> (per utenti avanzati), <span class="font-bold">iD Editor</span> (nel browser), <span class="font-bold">uMap</span> (per mappe tematiche), <span class="font-bold">StreetComplete</span> (per il mobile). Ognuno contribuisce come preferisce.</p>
+                                <p class="mt-4"><a href="https://wiki.openstreetmap.org/wiki/Software" target="_blank" rel="noopener noreferrer" class="action-link text-sm">Vedi gli strumenti &rarr;</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Il Futuro: <span class="gradient-text">La Mappa Semantica</span></h2>
+                        <p class="text-xl text-stone-300 max-w-4xl mx-auto mb-10">Stiamo andando oltre la semplice posizione. Stiamo costruendo un "gemello digitale" FOSS del mondo, dove ogni oggetto ha un significato e una relazione con gli altri.</p>
+                        <div class="grid md:grid-cols-2 gap-8 text-left">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-700">
+                                <h3 class="text-2xl font-bold text-blue-400">Dalla Geometria...</h3>
+                                <p class="mt-4 text-stone-300">Un poligono con il tag <span class="font-mono text-stone-400">building=yes</span>.</p>
+                            </div>
+                            <div class="bg-orange-900/20 p-8 rounded-2xl border border-orange-700">
+                                <h3 class="text-2xl font-bold text-orange-400">...Al Significato</h3>
+                                <p class="mt-4 text-stone-300">Un oggetto <span class="font-bold">Negozio</span>, che <span class="font-bold">vende</span> "pane", <span class="font-bold">aperto</span> dalle 8 alle 13, <span class="font-bold">accessibile</span> in sedia a rotelle.</p>
+                            </div>
+                        </div>
+                        <p class="mt-10 text-xl max-w-4xl mx-auto text-stone-300">Questo permette analisi predittive, simulazioni urbane e un livello di dettaglio inimmaginabile. E questo ci porta al nostro prossimo passo...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide">
+                <div class="slide-content">
+                    <div class="fade-in-content text-center">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-12">Il Prossimo Passo: <span class="gradient-text">Liberiamo le Attività Locali</span></h2>
+                        <p class="text-xl text-stone-300 max-w-4xl mx-auto mb-10">Proponiamo di costruire insieme un <span class="font-bold">Open Business Directory</span>: le "Pagine Gialle FOSS" su OpenStreetMap. Un luogo dove ogni attività può rivendicare e gestire la propria scheda, liberamente.</p>
+                        <div class="grid md:grid-cols-2 gap-8 text-left">
+                            <div class="bg-stone-900 p-8 rounded-2xl border border-stone-700">
+                                <h3 class="text-2xl font-bold text-red-400 flex items-center"><span class="mr-2 text-3xl">🔒</span> Modello Chiuso (Oggi)</h3>
+                                <ul class="mt-4 space-y-2 list-disc list-inside text-stone-300">
+                                    <li>I dati sono di Google.</li><li>Le regole le decide Google.</li><li>Sei un utente, non un proprietario.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-orange-900/20 p-8 rounded-2xl border border-orange-700">
+                                <h3 class="text-2xl font-bold text-green-400 flex items-center"><span class="mr-2 text-3xl">🌍</span> Open Business Directory (Domani)</h3>
+                                <ul class="mt-4 space-y-2 list-disc list-inside text-stone-300">
+                                    <li>I dati sono tuoi e della comunità.</li><li>Le regole le decidiamo insieme.</li><li>Sei il proprietario della tua scheda.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide text-center">
+                <div class="slide-content">
+                    <div class="fade-in-content">
+                        <h2 class="text-4xl md:text-5xl font-bold">Vuoi Costruire il Futuro<span class="gradient-text"> con Noi?</span></h2>
+                        <p class="mt-6 text-xl max-w-3xl mx-auto text-stone-300">La discussione per costruire questo progetto inizia <span class="font-bold">stasera</span>, qui su <span class="font-bold">Matrix</span>. Unisciti, presenta le tue idee, porta le tue competenze. Iniziamo a lavorare.</p>
+                        <div class="mt-12 flex flex-col items-center gap-6">
+                             <a href="https://matrix.to/#/#attivati:matrix.org" target="_blank" rel="noopener noreferrer" class="bg-orange-600 text-white font-bold py-4 px-8 rounded-full text-lg hover:bg-orange-700 transition-colors shadow-lg shadow-orange-500/20">
+                                Entra nella Stanza #attivati su Matrix!
+                             </a>
+                             <div class="text-center">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://matrix.to/%23/%23attivati:matrix.org&bgcolor=0c0a09&color=f2f2f2&qzone=1" alt="QR Code per la stanza Matrix #attivati" class="rounded-lg border-4 border-stone-800 mx-auto">
+                                <p class="mt-2 text-sm text-stone-400">https://matrix.to/#/#attivati:matrix.org</p>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <div id="arrow-left" class="nav-arrow">&#x2190;</div>
+    <div id="arrow-right" class="nav-arrow">&#x2192;</div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('presentation-container');
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+        let chartInstance = null;
+        
+        const palermoSlide = document.getElementById('palermo-slide');
+        const palermoSlideIndex = Array.from(slides).indexOf(palermoSlide);
+        const hotspots = palermoSlide.querySelectorAll('.hotspot');
+        const storyContents = palermoSlide.querySelectorAll('[data-story-content]');
+        const totalStories = hotspots.length;
+        let currentPalermoStory = -1; 
+
+        const updatePalermoView = (storyIndex) => {
+             currentPalermoStory = storyIndex;
+            hotspots.forEach((hotspot, index) => {
+                hotspot.classList.toggle('active', index === currentPalermoStory);
+            });
+            storyContents.forEach((content) => {
+                const contentIndex = parseInt(content.dataset.storyContent);
+                content.classList.toggle('active', contentIndex === currentPalermoStory + 1);
+            });
+            const initialState = palermoSlide.querySelector('[data-story-content="0"]');
+            if(initialState) {
+               initialState.classList.toggle('active', currentPalermoStory === -1);
+            }
+        };
+
+        const goToSlide = (slideIndex) => {
+            if (slideIndex < 0 || slideIndex >= totalSlides) return;
+            
+            currentSlide = slideIndex;
+            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('is-visible', index === currentSlide);
+            });
+
+            if (currentSlide === palermoSlideIndex) {
+                 updatePalermoView(-1);
+            }
+            
+            const otisChartCanvas = document.getElementById('otisChart');
+            if (slides[currentSlide].contains(otisChartCanvas) && !chartInstance) {
+                setTimeout(renderOtisChart, 400); 
+            }
+        };
+
+        const changeSlide = (direction) => {
+            if (currentSlide === palermoSlideIndex) {
+                if (direction === 1) {
+                    if (currentPalermoStory < totalStories -1) {
+                        updatePalermoView(currentPalermoStory + 1);
+                        return;
+                    }
+                } else if (direction === -1) {
+                    if (currentPalermoStory > -1) {
+                        updatePalermoView(currentPalermoStory - 1);
+                        return;
+                    }
+                }
+            }
+            goToSlide(currentSlide + direction);
+        };
+        
+        document.getElementById('arrow-left').addEventListener('click', (e) => {
+            e.stopPropagation();
+            changeSlide(-1);
+        });
+        document.getElementById('arrow-right').addEventListener('click', (e) => {
+            e.stopPropagation();
+            changeSlide(1);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+                e.preventDefault();
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                changeSlide(-1);
+            }
+        });
+
+        document.getElementById('presentation-wrapper').addEventListener('click', (e) => {
+            if (e.target.closest('a, button, .nav-arrow, .hotspot')) return;
+            changeSlide(1);
+        });
+
+        document.getElementById('presentation-wrapper').addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            changeSlide(-1);
+        });
+        
+        const renderOtisChart = () => {
+            const otisChartCanvas = document.getElementById('otisChart');
+            if (!otisChartCanvas || chartInstance) return;
+            const ctx = otisChartCanvas.getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Edifici Mappati', 'Strade Mappate (km)'],
+                    datasets: [{
+                        label: 'Dati Mappati',
+                        data: [52000, 639],
+                        backgroundColor: ['rgba(251, 146, 60, 0.6)', 'rgba(234, 88, 12, 0.6)'],
+                        borderColor: ['#fb923c', '#ea580c'],
+                        borderWidth: 2,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 800, easing: 'easeInOutCubic' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItems) => {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    return Array.isArray(label) ? label.join(' ') : label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#a8a29e', font: { size: 14 } } },
+                        x: { grid: { display: false }, ticks: { color: '#a8a29e', font: { size: 14 } } }
+                    }
+                }
+            });
+        };
+        
+        goToSlide(0);
+    });
+    </script>
+</body>
+</html>
+
