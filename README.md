@@ -4,18 +4,7 @@ Questo repository contiene il file sorgente completo della presentazione interat
 
 La presentazione non è solo una panoramica su OpenStreetMap, ma un vero e proprio manifesto sulla sovranità digitale, sul potere della mappatura comunitaria e sul lancio di un nuovo progetto FOSS: Open Business Directory.
 
-Anteprima
-
-(Consiglio: registra una breve GIF della navigazione e inseriscila qui!)
-![Anteprima della presentazione](anteprima.gif)
-
-Come Eseguire la Presentazione
-
-Questo progetto è un singolo file HTML autonomo. Non richiede build, installazioni o dipendenze complesse.
-
-Scarica: Scarica il file osm_palermo_final_appendix_responsive.html da questo repository.
-
-Apri: Apri il file con un qualsiasi browser moderno (Firefox, Chrome, Brave, ecc.).
+https://openbusinessdirectory.org
 
 Naviga:
 
